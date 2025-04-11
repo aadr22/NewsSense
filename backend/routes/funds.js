@@ -1,15 +1,14 @@
-// routes/funds.js
 const express = require('express');
 const router = express.Router();
 const fundController = require('../controllers/fundController');
 
-// Get all funds
+// Endpoint to fetch all funds (with pagination and filtering by type)
 router.get('/', fundController.getAllFunds);
 
-// Get a specific fund by symbol
+// Endpoint to fetch details of a specific fund by symbol
 router.get('/:symbol', fundController.getFundBySymbol);
 
-// Update fund data from Alpha Vantage
+// Endpoint to update fund data (e.g., from Alpha Vantage or other sources)
 router.post('/:symbol/update', fundController.updateFundData);
 
 module.exports = router;

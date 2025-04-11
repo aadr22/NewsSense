@@ -1,16 +1,19 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+/**
+ * Connects to MongoDB using the URI from environment variables.
+ */
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://127.0.0.1:27017/newssense', {
+    await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('MongoDB connected');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+    process.exit(1); // Exit process with failure
   }
 };
 

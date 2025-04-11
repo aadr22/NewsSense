@@ -1,18 +1,17 @@
-// routes/news.js
 const express = require('express');
 const router = express.Router();
 const newsController = require('../controllers/newsController');
 
-// Get all news articles
+// Endpoint to fetch all news articles (with pagination and filtering by source/sentiment)
 router.get('/', newsController.getAllNews);
 
-// Get news articles by keyword
+// Endpoint to fetch news articles by keyword
 router.get('/search/:keyword', newsController.getNewsByKeyword);
 
-// Get news related to a specific fund
+// Endpoint to fetch news related to a specific fund
 router.get('/related/:symbol', newsController.getNewsByFund);
 
-// Run the news scraper
+// Endpoint to manually scrape news from specified sources
 router.post('/scrape', newsController.scrapeNews);
 
 module.exports = router;

@@ -1,4 +1,3 @@
-// app.js
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
@@ -9,10 +8,9 @@ const fundRoutes = require('./routes/funds');
 const newsRoutes = require('./routes/news');
 const queryRoutes = require('./routes/query');
 
-// Import schedulers
-const { scheduleFundUpdates, scheduleNewsScraping } = require('./utils/scheduler');
+// Import scheduler
+const { initializeScheduledTasks } = require('./services/scheduler');
 
-// Initialize app
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -20,7 +18,7 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
+// Database connection
 connectDB();
 
 // Routes
@@ -28,16 +26,20 @@ app.use('/api/funds', fundRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/query', queryRoutes);
 
-// Start scheduled tasks
-scheduleFundUpdates();
-scheduleNewsScraping();
-
-// Root route for testing
-app.get('/', (req, res) => {
-  res.send('NewsSense API is running!');
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
 });
+
+// Initialize scheduled tasks
+initializeScheduledTasks();
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`NewsSense API running on port ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

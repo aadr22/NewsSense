@@ -1,9 +1,8 @@
-// routes/query.js
 const express = require('express');
 const router = express.Router();
 const queryController = require('../controllers/queryController');
 
-// Answer a question
-router.post('/', queryController.answerQuestion);
+// Endpoint to answer natural language questions about fund performance
+router.post('/', queryController.answerQuery);
 
 module.exports = router;
