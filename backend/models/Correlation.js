@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const CorrelationSchema = new mongoose.Schema({
+const correlationSchema = new mongoose.Schema({
   fundId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Fund',
@@ -13,21 +13,27 @@ const CorrelationSchema = new mongoose.Schema({
   },
   correlationScore: {
     type: Number,
-    required: true
+    required: true,
+    min: 0,
+    max: 1
   },
   impactType: {
     type: String,
-    enum: ['DIRECT', 'INDIRECT', 'SECTOR', 'MACRO'],
+    enum: ['DIRECT', 'INDIRECT', 'NEGATIVE'],
     default: 'DIRECT'
   },
   date: {
     type: Date,
     default: Date.now
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-// Compound index for uniqueness
-CorrelationSchema.index({ fundId: 1, newsId: 1 }, { unique: true });
-CorrelationSchema.index({ date: -1 });
+// Create compound index for faster lookups
+correlationSchema.index({ fundId: 1, newsId: 1 }, { unique: true });
+correlationSchema.index({ correlationScore: -1 });
 
-module.exports = mongoose.model('Correlation', CorrelationSchema);
+const Correlation = mongoose.model('Correlation', correlationSchema);
+
+module.exports = Correlation;

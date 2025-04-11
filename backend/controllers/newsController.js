@@ -2,7 +2,8 @@ const News = require('../models/News');
 const Fund = require('../models/Fund');
 const Correlation = require('../models/Correlation');
 const { runScraper } = require('../services/scraper');
-const { analyzeSentiment, extractEntities } = require('../services/nlp');
+const { analyzeSentiment } = require('../services/nlp/sentiment');
+const { extractEntities } = require('../services/nlp/entities');
 const { resolveEntities } = require('../utils/entityResolver');
 
 // Get all news articles with pagination
@@ -153,7 +154,7 @@ exports.scrapeNews = async (req, res) => {
       savedArticles.push(saved);
 
       // Link to related funds
-      await linkNewsToFunds(saved);
+      await exports.linkNewsToFunds(saved);
     }
 
     res.json({
@@ -168,14 +169,14 @@ exports.scrapeNews = async (req, res) => {
 };
 
 // Link news to related funds using entity resolution
-const linkNewsToFunds = async (newsArticle) => {
+exports.linkNewsToFunds = async (newsArticle) => {
   try {
     // Resolve entities to funds
     const relatedFundsSymbols = await resolveEntities(newsArticle.content);
-    
+
     for (const symbol of relatedFundsSymbols) {
       const fund = await Fund.findOne({ symbol });
-      
+
       if (!fund) continue;
 
       // Calculate correlation score (simple example)
@@ -188,7 +189,7 @@ const linkNewsToFunds = async (newsArticle) => {
         { $setOnInsert: { correlationScore, impactType: 'DIRECT' } },
         { upsert: true }
       );
-      
+
       console.log(`Linked ${newsArticle.title} to ${fund.symbol}`);
     }
   } catch (err) {

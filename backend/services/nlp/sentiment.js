@@ -1,10 +1,8 @@
-const { pipeline } = require('@huggingface/inference');
+const { HfInference } = require('@huggingface/inference');
 require('dotenv').config();
 
-// Load Hugging Face sentiment analysis pipeline
-const sentimentPipeline = pipeline('sentiment-analysis', {
-  model: 'distilbert-base-uncased-finetuned-sst-2-english', // Pre-trained sentiment model
-});
+// Initialize Hugging Face client
+const hf = new HfInference(process.env.HUGGINGFACE_ACCESS_TOKEN);
 
 /**
  * Analyzes sentiment of a given text using Hugging Face's sentiment analysis pipeline.
@@ -17,8 +15,13 @@ const analyzeSentiment = async (text) => {
       return { label: 'NEUTRAL', score: 0 }; // Default for empty or invalid text
     }
 
-    const result = await sentimentPipeline(text);
-    const sentiment = result[0]; // Extract first result
+    // Truncate text if too long (Hugging Face has token limits)
+    const truncatedText = text.length > 500 ? text.substring(0, 500) + '...' : text;
+
+    const result = await hf.textClassification({
+      model: 'distilbert-base-uncased-finetuned-sst-2-english',
+      inputs: truncatedText
+    });
 
     // Map sentiment labels to custom labels
     const labelMapping = {
@@ -28,8 +31,8 @@ const analyzeSentiment = async (text) => {
     };
 
     return {
-      label: labelMapping[sentiment.label] || 'NEUTRAL',
-      score: sentiment.score,
+      label: labelMapping[result[0].label] || 'NEUTRAL',
+      score: result[0].score,
     };
   } catch (error) {
     console.error('Error during sentiment analysis:', error.message);

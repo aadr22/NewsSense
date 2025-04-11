@@ -9,7 +9,7 @@ const BASE_URL = 'https://www.alphavantage.co/query';
  * @param {string} symbol - The stock or fund symbol (e.g., "AAPL", "GOOGL").
  * @returns {Promise<Object>} - The JSON response from Alpha Vantage.
  */
-const getFundData = async (symbol) => {
+const fetchFundData = async (symbol) => {
   try {
     const response = await axios.get(BASE_URL, {
       params: {
@@ -63,7 +63,7 @@ const getIntradayData = async (symbol, interval = '5min') => {
  * @param {string} fundSymbol - Mutual fund symbol (e.g., "FIDELITY.MF").
  * @returns {Promise<Object>} - Holdings information for the mutual fund.
  */
-const getMutualFundHoldings = async (fundSymbol) => {
+const fetchHoldings = async (fundSymbol) => {
   try {
     const response = await axios.get(BASE_URL, {
       params: {
@@ -77,11 +77,24 @@ const getMutualFundHoldings = async (fundSymbol) => {
       throw new Error(`Failed to fetch holdings for mutual fund: ${fundSymbol}`);
     }
 
-    return response.data;
+    // Process the holdings data
+    const holdings = [];
+    if (response.data && response.data.holdings) {
+      for (const holding of response.data.holdings) {
+        holdings.push({
+          companyName: holding.name,
+          symbol: holding.symbol,
+          percentage: parseFloat(holding.percentage) || 0
+        });
+      }
+    }
+
+    return holdings;
   } catch (error) {
     console.error(`Error fetching holdings for mutual fund ${fundSymbol}:`, error.message);
-    throw error;
+    // Return empty array instead of throwing error
+    return [];
   }
 };
 
-module.exports = { getFundData, getIntradayData, getMutualFundHoldings };
+module.exports = { fetchFundData, getIntradayData, fetchHoldings };

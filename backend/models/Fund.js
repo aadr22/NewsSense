@@ -1,65 +1,48 @@
 const mongoose = require('mongoose');
 
-const FundSchema = new mongoose.Schema({
+const fundSchema = new mongoose.Schema({
   symbol: {
     type: String,
     required: true,
-    unique: true
-  },
-  isin: {
-    type: String,
     unique: true,
-    sparse: true
+    trim: true,
+    uppercase: true
   },
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
-  type: {
+  description: {
     type: String,
-    enum: ['STOCK', 'ETF', 'MUTUAL_FUND'],
-    required: true
-  },
-  amc: {
-    type: String,
-    default: null
+    trim: true
   },
   category: {
     type: String,
-    default: null
+    trim: true
   },
-  priceHistory: [
-    {
-      date: {
-        type: Date,
-        required: true
-      },
-      price: {
-        type: Number,
-        required: true
-      },
-      change: Number,
-      changePercent: Number,
-      volume: Number
-    }
-  ],
-  holdings: [
-    {
-      companyName: String,
-      symbol: String,
-      percentage: Number
-    }
-  ],
-  relatedEntities: [String],
   lastUpdated: {
     type: Date,
     default: Date.now
+  },
+  performance: {
+    oneDay: Number,
+    oneWeek: Number,
+    oneMonth: Number,
+    threeMonths: Number,
+    sixMonths: Number,
+    oneYear: Number,
+    threeYears: Number,
+    fiveYears: Number,
+    sinceInception: Number
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-// Index for faster queries
-FundSchema.index({ symbol: 1 });
-FundSchema.index({ isin: 1 });
-FundSchema.index({ type: 1 });
+// Create text index for search
+fundSchema.index({ name: 'text', description: 'text' });
 
-module.exports = mongoose.model('Fund', FundSchema);
+const Fund = mongoose.model('Fund', fundSchema);
+
+module.exports = Fund;

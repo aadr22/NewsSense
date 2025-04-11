@@ -1,23 +1,29 @@
 const mongoose = require('mongoose');
 
-const NewsSchema = new mongoose.Schema({
+const newsSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   content: {
     type: String,
     required: true
   },
-  summary: String,
+  summary: {
+    type: String,
+    trim: true
+  },
   url: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   source: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   publishedAt: {
     type: Date,
@@ -31,24 +37,30 @@ const NewsSchema = new mongoose.Schema({
     score: Number,
     label: {
       type: String,
-      enum: ['POSITIVE', 'NEGATIVE', 'NEUTRAL']
+      enum: ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
     }
   },
-  entities: [{
-    text: String,
-    type: String,
-    relevance: Number
-  }],
+  entities: [
+    {
+      text: String,
+      type: String,
+      relevance: Number
+    }
+  ],
   keywords: [String],
   relatedFunds: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Fund'
   }]
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-// Text index for search functionality
-NewsSchema.index({ title: 'text', content: 'text', summary: 'text' });
-NewsSchema.index({ publishedAt: -1 });
-NewsSchema.index({ 'entities.text': 1 });
+// Create text index for search
+newsSchema.index({ title: 'text', content: 'text', summary: 'text' });
+newsSchema.index({ publishedAt: -1 });
+newsSchema.index({ 'entities.text': 1 });
 
-module.exports = mongoose.model('News', NewsSchema);
+const News = mongoose.model('News', newsSchema);
+
+module.exports = News;
