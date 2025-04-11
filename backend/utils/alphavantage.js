@@ -1,7 +1,7 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
+const API_KEY = process.env.KAAHTJ38GFWZKDD9;
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 const getFundData = async (symbol) => {
@@ -17,6 +17,7 @@ const getFundData = async (symbol) => {
   } catch (error) {
     console.error('Error fetching fund data:', error);
     throw error;
+    
   }
 };
 
